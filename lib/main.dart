@@ -99,38 +99,48 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                Container(
-                  height: 250,
-                  child: FutureBuilder<List<Anime>>(
-                    future: apiService.fetchAnimes(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No anime found'));
-                      } else {
-                        final animes = snapshot.data!
-                            .take(8)
-                            .toList(); // Ambil hanya 8 teratas
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: animes.map((anime) {
-                              return AnimeCard(
-                                  imageUrl: anime.posterImage,
-                                  title: anime.title,
-                                  episode: anime.episodeCount.toString(),
-                                  rating: anime.averageRating != null
-                                      ? double.parse(anime.averageRating!)
-                                      : 0);
-                            }).toList(),
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                Column(
+                  children: [
+                    Container(
+                      child: FutureBuilder<List<Anime>>(
+                        future: apiService.fetchAnimes(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(child: Text('No anime found'));
+                          } else {
+                            final animes = snapshot.data!
+                                .take(8)
+                                .toList(); // Ambil hanya 8 teratas
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: animes.map((anime) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: AnimeCard(
+                                        imageUrl: anime.posterImage,
+                                        title: anime.title,
+                                        episode: anime.episodeCount.toString(),
+                                        rating: anime.averageRating != null
+                                            ? double.parse(anime.averageRating!)
+                                            : 0),
+                                  );
+                                }).toList(),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -180,13 +190,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: animes.map((anime) {
-                              return AnimeCard(
-                                  imageUrl: anime.posterImage,
-                                  title: anime.title,
-                                  episode: anime.episodeCount.toString(),
-                                  rating: anime.averageRating != null
-                                      ? double.parse(anime.averageRating!)
-                                      : 0);
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: AnimeCard(
+                                    imageUrl: anime.posterImage,
+                                    title: anime.title,
+                                    episode: anime.episodeCount.toString(),
+                                    rating: anime.averageRating != null
+                                        ? double.parse(anime.averageRating!)
+                                        : 0),
+                              );
                             }).toList(),
                           ),
                         );

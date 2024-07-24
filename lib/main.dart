@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'api.dart';
+import 'categorypage.dart';
 import 'model/anime_model.dart';
+import 'widgets/anime_card.dart'; // Import AnimeCard
 
 void main() {
   runApp(const MyApp());
@@ -34,100 +35,167 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final ApiService apiService = ApiService();
+  String selectedCategory = 'adventure';
+  Future<List<Anime>>? adventureAnimes;
 
   @override
   void initState() {
     super.initState();
+    adventureAnimes = apiService.fetchAnimesByCategory(selectedCategory);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              const Row(
-                children: [
-                  Text(
-                    'Hi, Ramadhany ! 👋🏻',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    onPressed: null,
-                    icon: Icon(Icons.search, color: Colors.black),
-                  ),
-                  IconButton(
-                    onPressed: null,
-                    icon: Icon(Icons.notifications, color: Colors.black),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 170,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: Image.network(
-                          'https://as1.ftcdn.net/v2/jpg/03/16/68/46/1000_F_316684629_b42XaBaU7Z3yqYme0KGP1hYRHybR9JYb.jpg',
-                          fit: BoxFit.cover,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Text(
+                      'Hi, Ramadhany ! 👋🏻',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    Spacer(),
+                    IconButton(
+                      onPressed: null,
+                      icon: Icon(Icons.search, color: Colors.black),
+                    ),
+                    IconButton(
+                      onPressed: null,
+                      icon: Icon(Icons.notifications, color: Colors.black),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 170,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12.0),
+                          child: Image.network(
+                            'https://as1.ftcdn.net/v2/jpg/03/16/68/46/1000_F_316684629_b42XaBaU7Z3yqYme0KGP1hYRHybR9JYb.jpg',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Row(
-                children: [
-                  Text(
-                    'Trending',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: FutureBuilder<List<Anime>>(
-                  future: apiService.fetchAnimes(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No anime found'));
-                    } else {
-                      final animes = snapshot.data!
-                          .take(8)
-                          .toList(); // Ambil hanya 8 teratas
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: animes.map((anime) {
-                            return animeItem(
-                                anime.posterImage,
-                                anime.title,
-                                anime.episodeCount.toString(),
-                                anime.averageRating != null
-                                    ? double.parse(anime.averageRating!)
-                                    : 0);
-                          }).toList(),
-                        ),
-                      );
-                    }
-                  },
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                const Text(
+                  'Trending Anime',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 250,
+                  child: FutureBuilder<List<Anime>>(
+                    future: apiService.fetchAnimes(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No anime found'));
+                      } else {
+                        final animes = snapshot.data!
+                            .take(8)
+                            .toList(); // Ambil hanya 8 teratas
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: animes.map((anime) {
+                              return AnimeCard(
+                                  imageUrl: anime.posterImage,
+                                  title: anime.title,
+                                  episode: anime.episodeCount.toString(),
+                                  rating: anime.averageRating != null
+                                      ? double.parse(anime.averageRating!)
+                                      : 0);
+                            }).toList(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Text(
+                      'Adventure',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AnimeCategoryPage(categoryName: 'Adventure'),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'See All',
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 12, 0, 89)),
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  // Atur tinggi tetap jika ingin memiliki ruang khusus untuk scroll horizontal
+                  child: FutureBuilder<List<Anime>>(
+                    future: adventureAnimes,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No anime found'));
+                      } else {
+                        final animes = snapshot.data!
+                            .take(8)
+                            .toList(); // Ambil hanya 8 teratas
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: animes.map((anime) {
+                              return AnimeCard(
+                                  imageUrl: anime.posterImage,
+                                  title: anime.title,
+                                  episode: anime.episodeCount.toString(),
+                                  rating: anime.averageRating != null
+                                      ? double.parse(anime.averageRating!)
+                                      : 0);
+                            }).toList(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -144,7 +212,6 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Trending',
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.white,
             icon: Icon(
               Icons.favorite,
               color: Colors.white,
@@ -159,80 +226,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-Widget animeItem(String imageUrl, String title, String episode, double rating) {
-  return Padding(
-    padding: const EdgeInsets.only(right: 10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-            width: 135,
-            height: 230,
-            child: Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Color.fromARGB(255, 25, 25, 25)),
-              child: Column(
-                children: [
-                  Container(
-                    height: 150,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8.0),
-                        topRight: Radius.circular(8.0),
-                      ),
-                      image: DecorationImage(
-                        image: NetworkImage(imageUrl),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      episode != 'null' ? 'Episode $episode' : 'Ongoing',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                  Center(
-                    child: RatingBarIndicator(
-                      unratedColor: Colors.white,
-                      rating: rating / 20, // Karena rating dalam skala 100
-                      itemBuilder: (context, index) => const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                      ),
-                      itemCount: 5,
-                      itemSize: 20.0,
-                      direction: Axis.horizontal,
-                    ),
-                  ),
-                ],
-              ),
-            ))
-      ],
-    ),
-  );
 }

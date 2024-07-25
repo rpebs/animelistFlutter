@@ -117,7 +117,6 @@ class _MyHomePageState extends State<MyHomePage> {
         isLoadingTrending = false;
       });
     } catch (error) {
-      print("Error fetching animes: $error");
       setState(() {
         hasErrorAdventure = true;
         hasErrorTrending = true;
@@ -142,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text(
                       'Hi, Ramadhany ! 👋🏻',
                       style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                     ),
                     Spacer(),
                     IconButton(
@@ -179,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(height: 20),
                 const Text(
                   'Trending Anime',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 isLoadingTrending
@@ -218,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     const Text(
                       'Adventure',
                       style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
                     TextButton(

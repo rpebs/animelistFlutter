@@ -23,7 +23,11 @@ class AnimeCard extends StatelessWidget {
       onTap: onTap, // Tambahkan onTap di sini
       child: Container(
         width: 130,
-        height: MediaQuery.of(context).size.height * 0.33,
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height *
+              0.34, // Mengatur tinggi minimum
+        ),
+        padding: EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black),
           borderRadius: BorderRadius.circular(8.0),

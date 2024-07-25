@@ -96,7 +96,7 @@ class _AnimeCategoryPageState extends State<AnimeCategoryPage> {
                   children: [
                     Wrap(
                       spacing: 10, // Spasi horizontal antara item
-                      runSpacing: 20, // Spasi vertikal antara item
+                      runSpacing: 10, // Spasi vertikal antara item
                       children: _animes.map((anime) {
                         return SizedBox(
                           width: (MediaQuery.of(context).size.width - 40) /

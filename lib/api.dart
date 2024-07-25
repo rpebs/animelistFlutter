@@ -5,8 +5,10 @@ import 'model/anime_model.dart';
 class ApiService {
   final String baseUrl = 'https://kitsu.io/api/edge';
 
-  Future<List<Anime>> fetchAnimes(String sort) async {
-    final response = await http.get(Uri.parse('$baseUrl/anime?sort=${sort}'));
+  Future<List<Anime>> fetchAnimes(String sort,
+      {int pageNumber = 1, int pageSize = 9}) async {
+    final response = await http.get(Uri.parse(
+        '$baseUrl/anime?sort=$sort&page[number]=$pageNumber&page[size]=$pageSize'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final List<dynamic> animeList = data['data'];
@@ -27,6 +29,20 @@ class ApiService {
       return data.map<Anime>((json) => Anime.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load animes');
+    }
+  }
+
+  Future<List<Anime>> searchAnimes(String query,
+      {int pageNumber = 1, int pageSize = 9}) async {
+    final response = await http.get(
+      Uri.parse(
+          '$baseUrl/anime?filter[text]=$query&page[number]=$pageNumber&page[size]=$pageSize'),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'];
+      return data.map<Anime>((json) => Anime.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to search animes');
     }
   }
 }

@@ -1,4 +1,7 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/anime_detail.dart';
+import 'package:myapp/listanime.dart';
 import 'api.dart';
 import 'categorypage.dart';
 import 'model/anime_model.dart';
@@ -19,7 +22,48 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MainScreen(),
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+  final List<Widget> _pages = [
+    const MyHomePage(title: 'Home'),
+    const ListAnime(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        color: const Color.fromARGB(255, 23, 0, 97),
+        buttonBackgroundColor: const Color.fromARGB(255, 61, 0, 202),
+        height: 60,
+        items: const <Widget>[
+          Icon(Icons.home, size: 30, color: Colors.white),
+          Icon(Icons.list, size: 30, color: Colors.white),
+          Icon(Icons.compare_arrows, size: 30, color: Colors.white),
+        ],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
     );
   }
 }
@@ -48,6 +92,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _fetchAnimes();
+  }
+
+  void _onAnimeTap(String animeId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AnimeDetailPage(animeId: animeId),
+      ),
+    );
   }
 
   Future<void> _fetchAnimes() async {
@@ -144,6 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       padding:
                                           const EdgeInsets.only(right: 8.0),
                                       child: AnimeCard(
+                                          onTap: () => _onAnimeTap(anime.id),
                                           imageUrl: anime.posterImage,
                                           title: anime.title,
                                           episode:
@@ -199,6 +253,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: AnimeCard(
+                                      onTap: () => _onAnimeTap(anime.id),
                                       imageUrl: anime.posterImage,
                                       title: anime.title,
                                       episode: anime.episodeCount.toString(),
@@ -214,31 +269,19 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white.withOpacity(0.5),
-        backgroundColor: const Color.fromARGB(255, 23, 0, 124),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.trending_up,
-              color: Colors.white,
-            ),
-            label: 'Trending',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.favorite,
-              color: Colors.white,
-            ),
-            label: 'Favorites',
-          ),
-        ],
-        currentIndex: 0,
-        onTap: (index) {
-          // Handle tab selection
-        },
-      ),
+    );
+  }
+}
+
+class PlaceholderWidget extends StatelessWidget {
+  final Color color;
+
+  const PlaceholderWidget({super.key, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: color,
     );
   }
 }

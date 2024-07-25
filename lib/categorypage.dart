@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/anime_detail.dart';
 import 'api.dart';
 import 'model/anime_model.dart';
 import 'widgets/anime_card.dart'; // Pastikan Anda memiliki AnimeCard
@@ -39,6 +40,15 @@ class _AnimeCategoryPageState extends State<AnimeCategoryPage> {
         _scrollController.position.maxScrollExtent) {
       _fetchAnimes();
     }
+  }
+
+  void _onAnimeTap(String animeId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AnimeDetailPage(animeId: animeId),
+      ),
+    );
   }
 
   Future<void> _fetchAnimes() async {
@@ -92,6 +102,7 @@ class _AnimeCategoryPageState extends State<AnimeCategoryPage> {
                           width: (MediaQuery.of(context).size.width - 40) /
                               3, // Lebar kolom
                           child: AnimeCard(
+                            onTap: () => _onAnimeTap(anime.id),
                             imageUrl: anime.posterImage,
                             title: anime.title,
                             episode: anime.episodeCount.toString(),

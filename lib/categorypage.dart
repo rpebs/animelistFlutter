@@ -70,56 +70,46 @@ class _AnimeCategoryPageState extends State<AnimeCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Menggunakan MediaQuery untuk mendapatkan lebar layar
-    final double screenWidth = MediaQuery.of(context).size.width;
-    // Menghitung childAspectRatio berdasarkan lebar layar
-    final double childAspectRatio = screenWidth / (screenWidth / 0.45);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.categoryName} Anime'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // Jumlah kolom dalam grid
-                childAspectRatio: childAspectRatio, // Rasio aspek dinamis
-                crossAxisSpacing: 10, // Spasi horizontal antara item
-                mainAxisSpacing: 20, // Spasi vertikal antara item
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index == _animes.length) {
-                    // Item terakhir adalah indikator pemuatan jika ada lebih banyak data
-                    return const SizedBox(); // Placeholder kosong untuk indikator pemuatan
-                  }
-                  final anime = _animes[index];
-                  return AnimeCard(
-                    imageUrl: anime.posterImage,
-                    title: anime.title,
-                    episode: anime.episodeCount.toString(),
-                    rating: anime.averageRating != null
-                        ? double.parse(anime.averageRating!)
-                        : 0,
-                  );
-                },
-                childCount: _animes.length + (_hasMore ? 1 : 0),
-              ),
-            ),
-            if (_isLoading)
-              const SliverFillRemaining(
-                hasScrollBody:
-                    false, // Tidak ada konten yang bisa di-scroll di sini
-                child: Center(
-                  child: CircularProgressIndicator(),
+        child: _isLoading && _animes.isEmpty
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    Wrap(
+                      spacing: 10, // Spasi horizontal antara item
+                      runSpacing: 20, // Spasi vertikal antara item
+                      children: _animes.map((anime) {
+                        return SizedBox(
+                          width: (MediaQuery.of(context).size.width - 40) /
+                              3, // Lebar kolom
+                          child: AnimeCard(
+                            imageUrl: anime.posterImage,
+                            title: anime.title,
+                            episode: anime.episodeCount.toString(),
+                            rating: anime.averageRating != null
+                                ? double.parse(anime.averageRating!)
+                                : 0,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    if (_isLoading)
+                      const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(),
+                      ),
+                  ],
                 ),
               ),
-          ],
-        ),
       ),
     );
   }

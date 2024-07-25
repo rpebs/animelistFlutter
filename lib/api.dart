@@ -5,9 +5,8 @@ import 'model/anime_model.dart';
 class ApiService {
   final String baseUrl = 'https://kitsu.io/api/edge';
 
-  Future<List<Anime>> fetchAnimes() async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/anime?sort=-favoritesCount'));
+  Future<List<Anime>> fetchAnimes(String sort) async {
+    final response = await http.get(Uri.parse('$baseUrl/anime?sort=${sort}'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final List<dynamic> animeList = data['data'];

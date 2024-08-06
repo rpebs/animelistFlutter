@@ -1,7 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/anime_detail.dart';
+import 'package:myapp/anime_detail_stream.dart';
 import 'package:myapp/listanime.dart';
+import 'package:myapp/model/ongoing_model.dart';
+import 'package:myapp/widgets/otaku_desu_card.dart';
 import 'api.dart';
 import 'categorypage.dart';
 import 'model/anime_model.dart';
@@ -83,10 +86,13 @@ class _MyHomePageState extends State<MyHomePage> {
   String selectedSort = '-averageRating';
   List<Anime> adventureAnimes = [];
   List<Anime> trendingAnimes = [];
+  List<Ongoing> ongoingAnimes = [];
   bool isLoadingAdventure = true;
+  bool isLoadingOngoing = true;
   bool isLoadingTrending = true;
   bool hasErrorAdventure = false;
   bool hasErrorTrending = false;
+  bool hasErrorOngoing = false;
 
   @override
   void initState() {
@@ -94,11 +100,11 @@ class _MyHomePageState extends State<MyHomePage> {
     _fetchAnimes();
   }
 
-  void _onAnimeTap(String animeId) {
+  void _onAnimeTap(String endPoint) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AnimeDetailPage(animeId: animeId),
+        builder: (context) => AnimeDetailScreen(endpoint: endPoint),
       ),
     );
   }
@@ -109,19 +115,24 @@ class _MyHomePageState extends State<MyHomePage> {
           await apiService.fetchAnimesByCategory(selectedCategory);
 
       final fetchedTrendingAnimes = await apiService.fetchAnimes(selectedSort);
+      final fetchedOngoingAnimes = await apiService.fetchOngoing(1);
 
       setState(() {
         adventureAnimes = fetchedAdventureAnimes;
         trendingAnimes = fetchedTrendingAnimes;
+        ongoingAnimes = fetchedOngoingAnimes;
         isLoadingAdventure = false;
         isLoadingTrending = false;
+        isLoadingOngoing = false;
       });
     } catch (error) {
       setState(() {
         hasErrorAdventure = true;
         hasErrorTrending = true;
+        hasErrorOngoing = true;
         isLoadingAdventure = false;
         isLoadingTrending = false;
+        isLoadingOngoing = false;
       });
     }
   }
@@ -176,6 +187,66 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
                 const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Text(
+                      'Ongoing',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AnimeCategoryPage(
+                                categoryName: 'Adventure'),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'See All',
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 12, 0, 89)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                isLoadingOngoing
+                    ? const Center(child: CircularProgressIndicator())
+                    : hasErrorOngoing
+                        ? const Center(
+                            child: Text('Error loading ongoing animes'))
+                        : Column(
+                            children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: ongoingAnimes.take(8).map((anime) {
+                                    return Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 8.0),
+                                        child: OtakuDesuCard(
+                                          onTap: () =>
+                                              _onAnimeTap(anime.endpoint),
+                                          thumb: anime.thumb,
+                                          title: anime.title,
+                                          episode:
+                                              anime.totalEpisode.toString(),
+                                          updatedOn: anime.updatedOn,
+                                          updatedDay: anime.updatedDay,
+                                          endpoint: anime.endpoint,
+                                        ));
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                const SizedBox(height: 5),
                 const Text(
                   'Trending Anime',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
